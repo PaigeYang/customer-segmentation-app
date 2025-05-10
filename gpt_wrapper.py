@@ -11,8 +11,6 @@ except Exception as e:
 
 def generate_segment_insights(segment_stats):
     if generator is None:
-        
-        st.write(generator("Who are you?"))
         return {
             "name": "Unnamed Segment",
             "description": "Model not available.",
@@ -46,6 +44,7 @@ Given the following stats:
     msg_match  = re.search(r"(Message)[:：]?\s*(.*)", text, re.IGNORECASE)
 
     return {
+        "text": text,
         "name": name_match.group(2).strip() if name_match else "Unnamed Segment",
         "description": desc_match.group(2).strip() if desc_match else "No description found.",
         "message": msg_match.group(2).strip() if msg_match else "No suggestion generated."
