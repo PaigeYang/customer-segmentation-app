@@ -1,8 +1,7 @@
-# gpt_wrapper.py
 from transformers import pipeline
+import re
 
-# Load a free Hugging Face model
-# You can replace "google/flan-t5-large" with another open-source model
+# Load the lightweight FLAN model
 try:
     generator = pipeline("text2text-generation", model="google/flan-t5-base")
 except Exception as e:
@@ -12,24 +11,39 @@ except Exception as e:
 def generate_segment_insights(segment_stats):
     if generator is None:
         return {
-            "description": "Model not available. Please check setup.",
-            "message": "Unable to generate recommendation."
+            "name": "Unnamed Segment",
+            "description": "Model not available.",
+            "message": "No suggestion generated."
         }
 
+    # Build structured prompt
     prompt = f"""
-    Given the following customer segment:
-    - Average Spend: ${segment_stats.get('avg_spend', 'N/A')}
-    - Frequency: {segment_stats.get('avg_frequency', 'N/A')} purchases
-    - Recency: {segment_stats.get('avg_recency', 'N/A')} days since last purchase
+You are a customer insights assistant. Given the following segment statistics:
+- Average Spend: ${segment_stats.get('avg_spend', 'N/A')}
+- Purchase Frequency: {segment_stats.get('avg_frequency', 'N/A')} times
+- Recency: {segment_stats.get('avg_recency', 'N/A')} days since last purchase
 
-    Give this segment a name, describe their behavior in plain English, and suggest a marketing message.
-    """
+Please generate:
+1. A segment name
+2. A 1-2 sentence summary of customer behavior
+3. A recommended marketing message
 
-    result = generator(prompt, max_length=200, do_sample=True, temperature=0.7)
-    output = result[0]['generated_text'] if result else "No output."
+Format your response exactly like this:
+Segment Name: <name>
+Description: <summary>
+Message: <marketing suggestion>
+"""
 
-    # Simple split to extract name + description + message (if present)
+    result = generator(prompt, max_length=256, do_sample=True, temperature=0.7)
+    text = result[0]['generated_text'] if result else "No output"
+
+    # Use regex to extract fields
+    name_match = re.search(r"Segment Name:\s*(.*)", text)
+    desc_match = re.search(r"Description:\s*(.*)", text)
+    msg_match  = re.search(r"Message:\s*(.*)", text)
+
     return {
-        "description": output.strip(),
-        "message": "See description above."
+        "name": name_match.group(1).strip() if name_match else "Unnamed Segment",
+        "description": desc_match.group(1).strip() if desc_match else "No description found.",
+        "message": msg_match.group(1).strip() if msg_match else "No suggestion generated."
     }
