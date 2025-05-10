@@ -17,15 +17,18 @@ def generate_segment_insights(segment_stats):
             "message": "No suggestion generated."
         }
 
-    # Build structured prompt
+    # Structured prompt
     prompt = f"""
-You are a customer insights assistant. Do not explain or add notes. Just return the result in this exact format:
+You are a customer insights assistant.
 
-Segment Name: [Your segment name here]  
-Description: [Your customer behavior summary here]  
-Message: [Your suggested marketing message here]
+DO NOT add any intro or explanation text.
+Return your response ONLY in the exact format below:
 
-Given the following segment statistics:
+Segment Name: [Name]  
+Description: [Customer behavior summary]  
+Message: [Marketing recommendation]
+
+Given the following stats:
 - Average Spend: ${segment_stats.get('avg_spend', 'N/A')}
 - Purchase Frequency: {segment_stats.get('avg_frequency', 'N/A')} times
 - Recency: {segment_stats.get('avg_recency', 'N/A')} days since last purchase
@@ -33,15 +36,15 @@ Given the following segment statistics:
 
     result = generator(prompt, max_length=256, do_sample=False, temperature=0)
     text = result[0]['generated_text'] if result else "No output"
-    print("GPT raw output:", text)  # Optional for debugging
+    print("GPT raw output:\n", text)  # Debug: print full raw output
 
-    # Use regex to extract fields
-    name_match = re.search(r"Segment Name[:：]?\s*(.*)", text, re.IGNORECASE)
-    desc_match = re.search(r"Description[:：]?\s*(.*)", text, re.IGNORECASE)
-    msg_match  = re.search(r"Message[:：]?\s*(.*)", text, re.IGNORECASE)
+    # Loosened regex to match flexible model formatting
+    name_match = re.search(r"(Segment Name|Name)[:：]?\s*(.*)", text, re.IGNORECASE)
+    desc_match = re.search(r"(Description)[:：]?\s*(.*)", text, re.IGNORECASE)
+    msg_match  = re.search(r"(Message)[:：]?\s*(.*)", text, re.IGNORECASE)
 
     return {
-        "name": name_match.group(1).strip() if name_match else "Unnamed Segment",
-        "description": desc_match.group(1).strip() if desc_match else "No description found.",
-        "message": msg_match.group(1).strip() if msg_match else "No suggestion generated."
+        "name": name_match.group(2).strip() if name_match else "Unnamed Segment",
+        "description": desc_match.group(2).strip() if desc_match else "No description found.",
+        "message": msg_match.group(2).strip() if msg_match else "No suggestion generated."
     }
