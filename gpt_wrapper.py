@@ -4,7 +4,7 @@ import re
 
 # Load the lightweight FLAN model
 try:
-    generator = pipeline("text-generation", model="deepseek-ai/DeepSeek-Prover-V2-671B", trust_remote_code=True)
+    generator = pipeline("text-generation", model="openai-community/gpt2")
 except Exception as e:
     generator = None
     print("Model loading failed. Check environment or dependencies.", e)
