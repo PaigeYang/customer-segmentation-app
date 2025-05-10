@@ -4,7 +4,7 @@ from transformers import pipeline
 # Load a free Hugging Face model
 # You can replace "google/flan-t5-large" with another open-source model
 try:
-    generator = pipeline("text2text-generation", model="google/flan-t5-large")
+    generator = pipeline("text2text-generation", model="google/flan-t5-base")
 except Exception as e:
     generator = None
     print("Model loading failed. Check environment or dependencies.", e)
