@@ -1,6 +1,7 @@
 # gpt_wrapper.py
 from transformers import pipeline
 import re
+import streamlit as st
 
 # Load the lightweight FLAN model
 try:
@@ -16,6 +17,7 @@ def generate_segment_insights(segment_stats):
             "description": "Model not available.",
             "message": "No suggestion generated."
         }
+    st.write(generator("What is customer segmentation?"))
 
     # Structured prompt
     prompt = f"""
