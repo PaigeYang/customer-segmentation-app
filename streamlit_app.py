@@ -33,3 +33,5 @@ if st.button("🔍 Segment Customers"):
         insights = generate_segment_insights(seg['stats'])
         st.write(insights['description'])
         st.markdown(f"**Suggested Campaign:** {insights['message']}")
+        st.wrtie(insights)
+        
