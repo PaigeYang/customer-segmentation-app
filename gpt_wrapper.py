@@ -1,3 +1,4 @@
+# gpt_wrapper.py
 from transformers import pipeline
 import re
 
@@ -18,29 +19,26 @@ def generate_segment_insights(segment_stats):
 
     # Build structured prompt
     prompt = f"""
-You are a customer insights assistant. Given the following segment statistics:
+You are a customer insights assistant. Do not explain or add notes. Just return the result in this exact format:
+
+Segment Name: [Your segment name here]  
+Description: [Your customer behavior summary here]  
+Message: [Your suggested marketing message here]
+
+Given the following segment statistics:
 - Average Spend: ${segment_stats.get('avg_spend', 'N/A')}
 - Purchase Frequency: {segment_stats.get('avg_frequency', 'N/A')} times
 - Recency: {segment_stats.get('avg_recency', 'N/A')} days since last purchase
-
-Please generate:
-1. A segment name
-2. A 1-2 sentence summary of customer behavior
-3. A recommended marketing message
-
-Format your response exactly like this:
-Segment Name: <name>
-Description: <summary>
-Message: <marketing suggestion>
 """
 
-    result = generator(prompt, max_length=256, do_sample=True, temperature=0.7)
+    result = generator(prompt, max_length=256, do_sample=False, temperature=0)
     text = result[0]['generated_text'] if result else "No output"
+    print("GPT raw output:", text)  # Optional for debugging
 
     # Use regex to extract fields
-    name_match = re.search(r"Segment Name:\s*(.*)", text)
-    desc_match = re.search(r"Description:\s*(.*)", text)
-    msg_match  = re.search(r"Message:\s*(.*)", text)
+    name_match = re.search(r"Segment Name[:：]?\s*(.*)", text, re.IGNORECASE)
+    desc_match = re.search(r"Description[:：]?\s*(.*)", text, re.IGNORECASE)
+    msg_match  = re.search(r"Message[:：]?\s*(.*)", text, re.IGNORECASE)
 
     return {
         "name": name_match.group(1).strip() if name_match else "Unnamed Segment",
