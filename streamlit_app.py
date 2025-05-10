@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from segmentation import segment_customers
 from gpt_wrapper import generate_segment_insights
+from transformers import pipeline
 
 st.set_page_config(page_title="Customer Segmentation Assistant")
 st.title("📊 Customer Segmentation Assistant")
@@ -20,6 +21,10 @@ else:
 
 st.subheader("Customer Data Preview")
 st.dataframe(df.head())
+
+generator = pipeline("text2text-generation", model="google/flan-t5-base")
+st.write(generator("who are you?"))
+st.write(generator("WHat is 1+1?"))
 
 # Step 2: Segmentation
 if st.button("🔍 Segment Customers"):
