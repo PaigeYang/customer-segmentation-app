@@ -1,5 +1,9 @@
 streamlit
 pandas
 scikit-learn
-openai
 numpy
+python-dotenv
+matplotlib
+seaborn
+transformers
+torch
