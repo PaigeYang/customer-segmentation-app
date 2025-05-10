@@ -12,12 +12,13 @@ except Exception as e:
 
 def generate_segment_insights(segment_stats):
     if generator is None:
+        
+        st.write(generator("Who are you?"))
         return {
             "name": "Unnamed Segment",
             "description": "Model not available.",
             "message": "No suggestion generated."
         }
-    st.write(generator("What is customer segmentation?"))
 
     # Structured prompt
     prompt = f"""
